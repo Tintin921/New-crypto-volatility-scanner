@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crypto Volatility Screener — Free by Cryptopreneur</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#262d36;--tx:#e6edf3;--mut:#8b949e;--g:#3fb950;--r:#f85149;--y:#d29922;--b:#58a6ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:12px 14px 40px}
+h1{font-size:19px;margin:6px 0 2px}.mut{color:var(--mut)}.sm{font-size:12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button,select,input{background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font:inherit}
+button{cursor:pointer}button:hover{border-color:var(--b)}
+button.on{background:#1f3a5f;border-color:var(--b);color:#cfe6ff}
+label.f{display:flex;flex-direction:column;font-size:11px;color:var(--mut);gap:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:10px 0}
+.st{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.st b{display:block;font-size:19px}.st span{color:var(--mut);font-size:12px}
+.status{padding:7px 10px;border-radius:6px;background:var(--card);border:1px solid var(--line);margin:8px 0;font-size:12px;color:var(--mut)}
+.status.err{border-color:var(--r);color:var(--r)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{background:var(--card);color:var(--mut);font-weight:600;font-size:12px;cursor:pointer;user-select:none;position:sticky;top:0}
+th:hover{color:var(--tx)}th.s{color:var(--b)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--bg)}
+th:first-child{background:var(--card)}
+td:first-child a{font-weight:700}
+a{color:var(--b);text-decoration:none}a:hover{text-decoration:underline}
+.pos{color:var(--g)}.neg{color:var(--r)}.hot{color:var(--y);font-weight:700}
+.legend{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:8px 0;font-size:12px;color:var(--mut)}
+.legend b{color:var(--tx)}
+.empty{padding:16px;color:var(--mut)}
+.boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:12px 0}
+.bx{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.bx h3{margin:0 0 6px;font-size:12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.bx.up{border-top:3px solid var(--g)}.bx.dn{border-top:3px solid var(--r)}
+.bx .r{display:flex;justify-content:space-between;padding:2px 0;font-size:13px}
+.bx .r a{font-weight:700}
+body.bear #views button.on{background:#5f1f24;border-color:var(--r);color:#ffd0d0}
+#mode button.on.bu{background:#12331d;border-color:var(--g);color:#b8f0c4}
+#mode button.on.be{background:#5f1f24;border-color:var(--r);color:#ffd0d0}
+.foot{margin-top:18px;font-size:12px;color:var(--mut)}
+
+.dsnote{white-space:normal;min-width:200px;max-width:300px;text-align:left}
+.bulltxt{color:var(--g);font-weight:700}.beartxt{color:var(--r);font-weight:700}.neutral{color:var(--y);font-weight:700}
+#derivatives table{min-width:1500px}
+
+
+#sweepPanel table{min-width:1050px}
+.sigbull{color:var(--g);font-weight:700}.sigbear{color:var(--r);font-weight:700}
+.volhigh{color:var(--y);font-weight:700}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.panel-head h1,.panel-head h2{margin:0!important}
+.hide-toggle{white-space:nowrap;padding:6px 11px;font-size:12px;line-height:1.4}
+.panel-content[hidden]{display:none!important}
+</style></head><body><div class="wrap">
+<div class="panel-head"><h1>Crypto Volatility Screener <span class="mut sm">free · live · by Cryptopreneur</span></h1><button class="hide-toggle" type="button" data-toggle="mainContent" aria-expanded="true">Hide</button></div>
+<div class="mut sm">Pichhle 7 aur 30 din ke top performers, aur aaj kaun se coins volatile hain — ek jagah.</div>
+<div id="mainContent" class="panel-content">
+<div class="boxes" id="boxes"></div>
+
+<div class="bar" id="mode">
+ <button id="mBull" class="on bu">▲ Bullish screener</button>
+ <button id="mBear" class="be">▼ Bearish screener</button>
+</div>
+
+<div class="bar">
+ <label class="f">Exchange data
+  <select id="ex"><option value="binance">Binance Futures</option><option value="bybit">Bybit Futures</option></select></label>
+ <label class="f">Min 24h volume
+  <select id="mv"><option value="5">$5M</option><option value="10">$10M</option><option value="20" selected>$20M</option><option value="50">$50M</option><option value="100">$100M</option></select></label>
+ <label class="f">Top N
+  <select id="tn"><option>10</option><option>20</option><option selected>30</option><option>50</option></select></label>
+ <label class="f">Volatile = × avg range
+  <select id="xm"><option value="1">1.0×</option><option value="1.5" selected>1.5×</option><option value="2">2.0×</option></select></label>
+ <span style="flex:1"></span>
+ <button id="rf">Refresh</button>
+ <button id="au" class="on">Auto: on</button>
+</div>
+
+<div class="bar" id="views">
+ <button data-v="intra">Intraday performers</button>
+ <button data-v="week">Weekly performers</button>
+ <button data-v="month">Monthly performers</button>
+ <button data-v="vol">Intraday volatile</button>
+ <button data-v="wvol">Weekly volatile</button>
+ <button data-v="mvol">Monthly volatile</button>
+ <button data-v="combo" class="on">Strong + Volatile</button>
+ <span style="flex:1"></span>
+ <button id="cp">Copy TradingView list</button>
+ <button id="dl">Download .txt</button>
+</div>
+
+<div class="status" id="status">Loading…</div>
+<div class="stats" id="stats"></div>
+<div class="tw" id="tbl"><div class="empty">Loading…</div></div>
+</div>
+
+<section id="derivatives" style="margin:18px 0;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:10px">
+  <div class="panel-head"><h2 style="font-size:18px;margin:0 0 5px">Binance Futures Behaviour Scanner</h2><button class="hide-toggle" type="button" data-toggle="derivativesContent" aria-expanded="true">Hide</button></div>
+  <div id="derivativesContent" class="panel-content">
+  <div class="mut sm">Separate 5m, 15m and 30m readings using price, open interest, trader positioning and taker flow. These are heuristic clues, not proof of liquidations or trapped positions.</div>
+  <div class="bar">
+    <label class="f">Coins to scan
+      <select id="dsN"><option>5</option><option selected>10</option><option>20</option></select>
+    </label>
+    <button id="dsRun">Run Binance derivatives scan</button>
+    <label class="f">Search a specific coin (e.g. BTC or ETHUSDT)
+      <input id="dsCoinSearch" type="text" placeholder="BTC or BTCUSDT" autocomplete="off" style="min-width:190px;text-transform:uppercase">
+    </label>
+    <button id="dsSearchBtn">Search coin</button>
+    <button id="dsRefreshBtn" title="Refresh the searched coin, or rerun the full derivatives scan if the search box is empty">Refresh data</button>
+  </div>
+  <div id="dsStatus" class="status">Ready. Load the main screener first, then run this scan.</div>
+  <div class="stats" id="dsStats"></div>
+  <div class="tw" id="dsTbl"><div class="empty">No derivatives scan yet. Results will appear here.</div></div>
+  <div class="legend">
+    <b>How to read:</b> OI rising means open contracts/notional is rising, not automatically new shorts or new longs.
+    L/S ratios above 1 indicate more long than short accounts/positions in that metric; a rising ratio means the ratio is increasing.
+    Taker buy/sell above 1 indicates more taker-buy volume. Scores summarize these clues and do not predict outcomes.
+  </div>
+  </div>
+</section>
+
+<section id="sweepPanel" style="margin:18px 0;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:10px">
+  <div class="panel-head"><h2 style="font-size:18px;margin:0 0 5px">Multi-Timeframe Strict Sweep Scanner</h2><button class="hide-toggle" type="button" data-toggle="sweepContent" aria-expanded="true">Hide</button></div>
+  <div id="sweepContent" class="panel-content">
+  <div class="mut sm">Scans volatile Binance USDT perpetuals from the main screener. Only completed candles count. Volume classifies a valid sweep; it never filters one out.</div>
+  <div class="bar">
+    <label class="f">Volatile coins to scan
+      <select id="swN"><option>5</option><option selected>10</option><option>20</option><option>30</option></select>
+    </label>
+    <button id="swRun">Scan volatile coins</button>
+    <label class="f">Search a coin (optional)
+      <input id="swCoinSearch" type="text" placeholder="BTC or BTCUSDT" autocomplete="off" style="min-width:170px;text-transform:uppercase">
+    </label>
+    <button id="swSearchBtn">Search coin</button>
+  </div>
+  <div id="swStatus" class="status">Load the main screener, then scan volatile coins.</div>
+  <div id="swStats" class="stats"></div>
+  <div class="tw" id="swTbl"><div class="empty">No sweep scan yet.</div></div>
+  <div class="legend"><b>Bullish sweep:</b> completed candle low below previous low AND close above previous high. <b>Bearish sweep:</b> completed candle high above previous high AND close below previous low. <b>High volume:</b> signal candle quote volume ≥ 1.50× the average quote volume of the previous 20 completed candles.</div>
+  </div>
+</section>
+
+<div class="legend">
+ <b>7D / 30D</b> = pichhle 7 din / 30 din ka change (rolling, kisi bhi din chalega — Monday ko bhi) · <b>24h range</b> = pichhle 24 ghante ka high–low % ·
+ <b>Avg range</b> = pichhle 14 din ka average daily range % · <b>×Avg</b> = 24h range ÷ avg range (1.5× = normal se 50% zyada hilna) ·
+ <b>7D vol / 30D vol</b> = pichhle 7 / 30 din ka average daily high–low range % (kitna hilta raha) · <b>Today</b> = aaj ki daily candle (05:30 IST se) · <b>Yday</b> = kal ki poori candle · <b>Intraday performers</b> = top 24h gainers (Bearish mein losers) · <b>Bearish screener</b> = same filters ulte side: sabse kamzor coins, aur volatile views mein sirf girte coins · <b>Strong + Volatile</b> = top-N week ya month mein <i>aur</i> ×Avg threshold ke upar.
+ TradingView mein: Watchlist → ⋯ → Import list → downloaded .txt (ya copy kiya hua text).
+</div>
+<div class="foot">Movement scanner hai, signal nahi — volatility direction nahi batati. Data: exchange public API, aapke browser mein live. Educational use only, not financial advice.
+ · <a href="https://www.youtube.com/channel/UC_nyUS3dGDwu8cgVjT0t5Tg" target="_blank" rel="noopener">Cryptopreneur on YouTube</a></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const DAY=864e5;
+const EX={
+ binance:{name:'Binance Futures',pre:'BINANCE',
+  async tickers(){const r=await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');if(!r.ok)throw new Error('Binance HTTP '+r.status);const a=await r.json();
+   return a.filter(x=>x.symbol.endsWith('USDT')&&!x.symbol.includes('_')).map(x=>({s:x.symbol,p:+x.lastPrice,ch:+x.priceChangePercent,h:+x.highPrice,l:+x.lowPrice,v:+x.quoteVolume}))},
+  async klines(s){const r=await fetch('https://fapi.binance.com/fapi/v1/klines?symbol='+s+'&interval=1d&limit=40');if(!r.ok)throw new Error('Binance HTTP '+r.status);const a=await r.json();
+   return a.map(k=>({t:+k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4]}))}},
+ bybit:{name:'Bybit Futures',pre:'BYBIT',
+  async tickers(){const r=await fetch('https://api.bybit.com/v5/market/tickers?category=linear');if(!r.ok)throw new Error('Bybit HTTP '+r.status);const j=await r.json();
+   return j.result.list.filter(x=>x.symbol.endsWith('USDT')&&!x.symbol.includes('-')).map(x=>({s:x.symbol,p:+x.lastPrice,ch:+x.price24hPcnt*100,h:+x.highPrice24h,l:+x.lowPrice24h,v:+x.turnover24h}))},
+  async klines(s){const r=await fetch('https://api.bybit.com/v5/market/kline?category=linear&symbol='+s+'&interval=D&limit=40');if(!r.ok)throw new Error('Bybit HTTP '+r.status);const j=await r.json();
+   return j.result.list.slice().reverse().map(k=>({t:+k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4]}))}}
+};
+let MODE='bull',VIEW='combo',SORT={k:'x',d:-1},ROWS=[],KC={},busy=false,timer=null,AUTO=true;
+const SET={ex:'binance',mv:'20',tn:'30',xm:'1.5'};
+try{Object.assign(SET,JSON.parse(localStorage.getItem('cvs')||'{}'))}catch(e){}
+['ex','mv','tn','xm'].forEach(k=>{$(k).value=SET[k]||$(k).value;$(k).onchange=()=>{SET[k]=$(k).value;try{localStorage.setItem('cvs',JSON.stringify(SET))}catch(e){};k==='ex'||k==='mv'?load():render()}});
+
+const f1=v=>v==null||!isFinite(v)?'—':(+v).toFixed(1);
+const px=v=>v==null?'—':(+v).toPrecision(5).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
+const pc=v=>v==null||!isFinite(v)?'—':'<span class="'+(v>=0?'pos':'neg')+'">'+(v>=0?'+':'')+(+v).toFixed(1)+'%</span>';
+const istTime=()=>new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+function starts(){const n=new Date(),d=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate());
+ return{today:d,week:d-7*DAY,month:d-30*DAY}}
+function setStatus(t,err){const s=$('status');s.textContent=t;s.className='status'+(err?' err':'')}
+
+async function pool(items,n,fn,onp){let i=0,done=0,fail=0;
+ await Promise.all(Array.from({length:n},async()=>{while(i<items.length){const it=items[i++];try{await fn(it)}catch(e){fail++}done++;onp&&onp(done,items.length)}}));return fail}
+
+function calc(t,ks,S){
+ const wk=ks.find(k=>k.t===S.week),mo=ks.find(k=>k.t===S.month);
+ const done=ks.filter(k=>k.t<S.today).slice(-14);
+ const ar=done.length>=7?done.reduce((a,k)=>a+(k.h-k.l)/k.l*100,0)/done.length:null;
+ const r24=t.l>0?(t.h-t.l)/t.l*100:null;
+ const avg=a=>a.length?a.reduce((q,k)=>q+(k.h-k.l)/k.l*100,0)/a.length:null;
+ const wv=avg(ks.filter(k=>k.t>=S.week+DAY)),mvl=avg(ks.filter(k=>k.t>=S.month+DAY));
+ const td=ks.find(k=>k.t===S.today),yd=ks.find(k=>k.t===S.today-DAY);
+ return{s:t.s,base:t.s.replace(/USDT$/,''),p:t.p,ch:t.ch,td:td?(t.p/td.o-1)*100:null,yd:yd?(yd.c/yd.o-1)*100:null,
+  w:wk?(t.p/wk.o-1)*100:null,m:mo?(t.p/mo.o-1)*100:null,r24,ar,x:(ar&&r24!=null)?r24/ar:null,wv,mvl,v:t.v/1e6}}
+
+async function load(){
+ if(busy)return;busy=true;const ex=EX[SET.ex],S=starts();
+ try{
+  setStatus('Fetching '+ex.name+' tickers…');
+  const all=await ex.tickers();
+  const el=all.filter(t=>t.v>=SET.mv*1e6&&t.p>0);
+  const need=el.filter(t=>{const c=KC[SET.ex+t.s];return !c||c.day!==S.today});
+  let fail=0;
+  if(need.length){fail=await pool(need,8,async t=>{KC[SET.ex+t.s]={day:S.today,k:await ex.klines(t.s)}},
+    (d,n)=>setStatus('Loading daily history '+d+'/'+n+' (one-time per day)…'))}
+  ROWS=el.filter(t=>KC[SET.ex+t.s]).map(t=>calc(t,KC[SET.ex+t.s].k,S));
+  window.__asof=istTime();
+  setStatus('Updated '+window.__asof+' IST · '+ex.name+' · '+ROWS.length+' coins ≥ $'+SET.mv+'M 24h volume'+(fail?' · '+fail+' coins skipped (rate limit)':''));
+  render();
+ }catch(e){
+  setStatus('Data load failed: '+e.message+'. Agar Binance aapke region mein blocked hai to Bybit select karo.',true);
+ }finally{busy=false}
+}
+
+function dirD(){return MODE==='bear'?-1:1}
+function defSort(){const D=dirD();return{k:{intra:'ch',week:'w',month:'m',wvol:'wv',mvol:'mvl'}[VIEW]||'x',d:['intra','week','month'].includes(VIEW)?-D:-1}}
+function pick(){
+ const N=+SET.tn,xm=+SET.xm,D=dirD();
+ const top=(key)=>new Set(ROWS.filter(r=>r[key]!=null).sort((a,b)=>D*(b[key]-a[key])).slice(0,N).map(r=>r.s));
+ const W=top('w'),M=top('m');
+ const dirOk=v=>v!=null&&(D>0?v>0:v<0);
+ let a;
+ if(VIEW==='intra')a=ROWS.filter(r=>r.ch!=null).sort((p,q)=>D*(q.ch-p.ch)).slice(0,N);
+ else if(VIEW==='wvol')a=ROWS.filter(r=>r.wv!=null&&dirOk(r.w)).sort((p,q)=>q.wv-p.wv).slice(0,N);
+ else if(VIEW==='mvol')a=ROWS.filter(r=>r.mvl!=null&&dirOk(r.m)).sort((p,q)=>q.mvl-p.mvl).slice(0,N);
+ else if(VIEW==='week')a=ROWS.filter(r=>W.has(r.s));
+ else if(VIEW==='month')a=ROWS.filter(r=>M.has(r.s));
+ else if(VIEW==='vol')a=ROWS.filter(r=>r.x!=null&&dirOk(r.ch)).sort((p,q)=>q.x-p.x).slice(0,N);
+ else a=ROWS.filter(r=>(W.has(r.s)||M.has(r.s))&&r.x!=null&&r.x>=xm);
+ const k=SORT.k,d=SORT.d;
+ return a.sort((p,q)=>{const A=p[k],B=q[k];if(A==null)return 1;if(B==null)return -1;return typeof A==='string'?d*A.localeCompare(B):d*(A-B)})
+}
+const VL={bull:{intra:'Intraday performers',week:'Weekly performers',month:'Monthly performers',vol:'Intraday volatile',wvol:'Weekly volatile',mvol:'Monthly volatile',combo:'Strong + Volatile'},
+ bear:{intra:'Intraday losers',week:'Weekly losers',month:'Monthly losers',vol:'Intraday volatile (down)',wvol:'Weekly volatile (down)',mvol:'Monthly volatile (down)',combo:'Weak + Volatile'}};
+function labels(){document.querySelectorAll('#views [data-v]').forEach(b=>b.textContent=VL[MODE][b.dataset.v]);
+ document.body.classList.toggle('bear',MODE==='bear');
+ $('mBull').classList.toggle('on',MODE==='bull');$('mBear').classList.toggle('on',MODE==='bear')}
+function boxes(){
+ const mk=(title,key,dir,cls)=>{const a=ROWS.filter(r=>r[key]!=null).sort((p,q)=>dir*(q[key]-p[key])).slice(0,5);
+  return '<div class="bx '+cls+'"><h3>'+title+'</h3>'+a.map(r=>'<div class="r"><a target="_blank" rel="noopener" href="https://www.tradingview.com/chart/?symbol='+EX[SET.ex].pre+':'+r.s+'.P">'+r.base+'</a>'+pc(r[key])+'</div>').join('')+'</div>'};
+ $('boxes').innerHTML=mk('Today · top gainers','td',1,'up')+mk('Today · top losers','td',-1,'dn')+mk('Yesterday · top gainers','yd',1,'up')+mk('Yesterday · top losers','yd',-1,'dn')}
+const COLS=[['base','Coin'],['p','Price'],['ch','24h %'],['td','Today %'],['yd','Yday %'],['w','7D %'],['m','30D %'],['r24','24h range %'],['ar','Avg range %'],['x','×Avg'],['wv','7D vol %'],['mvl','30D vol %'],['v','Vol 24h $M']];
+function render(){
+ if(!ROWS.length){$('tbl').innerHTML='<div class="empty">No data yet.</div>';return}
+ const xm=+SET.xm,up=ROWS.filter(r=>r.w!=null&&r.w>0).length,wn=ROWS.filter(r=>r.w!=null).length;
+ const hot=ROWS.filter(r=>r.x!=null&&r.x>=xm).length;
+ $('stats').innerHTML='<div class="st"><b>'+ROWS.length+'</b><span>coins scanned</span></div>'+
+  '<div class="st"><b>'+(wn?Math.round(up/wn*100):0)+'%</b><span>up in last 7 days</span></div>'+
+  '<div class="st"><b>'+hot+'</b><span>volatile now (≥'+xm+'× avg)</span></div>';
+ boxes();const a=pick(),pre=EX[SET.ex].pre;
+ if(!a.length){$('tbl').innerHTML='<div class="empty">Is filter mein abhi koi coin nahi. Volatile threshold kam karo ya min volume ghatao.</div>';return}
+ let h='<table><thead><tr>'+COLS.map(c=>'<th data-k="'+c[0]+'" class="'+(SORT.k===c[0]?'s':'')+'">'+c[1]+(SORT.k===c[0]?(SORT.d<0?' ▼':' ▲'):'')+'</th>').join('')+'</tr></thead><tbody>';
+ for(const r of a){
+  h+='<tr><td><a target="_blank" rel="noopener" href="https://www.tradingview.com/chart/?symbol='+pre+':'+r.s+'.P">'+r.base+'</a></td><td>'+px(r.p)+'</td><td>'+pc(r.ch)+'</td><td>'+pc(r.td)+'</td><td>'+pc(r.yd)+'</td><td>'+pc(r.w)+'</td><td>'+pc(r.m)+'</td><td>'+f1(r.r24)+'</td><td>'+f1(r.ar)+'</td><td class="'+(r.x>=xm?'hot':'')+'">'+(r.x==null?'—':r.x.toFixed(2)+'×')+'</td><td>'+f1(r.wv)+'</td><td>'+f1(r.mvl)+'</td><td>'+(r.v>=100?r.v.toFixed(0):r.v.toFixed(1))+'</td></tr>'}
+ $('tbl').innerHTML=h+'</tbody></table>';
+ $('tbl').querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;SORT=SORT.k===k?{k,d:-SORT.d}:{k,d:k==='base'?1:-1};render()});
+}
+document.querySelectorAll('#views [data-v]').forEach(b=>b.onclick=()=>{
+ VIEW=b.dataset.v;document.querySelectorAll('#views [data-v]').forEach(x=>x.classList.toggle('on',x===b));
+ SORT=defSort();render()});
+$('mBull').onclick=()=>{MODE='bull';labels();SORT=defSort();render()};
+$('mBear').onclick=()=>{MODE='bear';labels();SORT=defSort();render()};
+function tvList(){return pick().map(r=>EX[SET.ex].pre+':'+r.s+'.P').join(',')}
+$('cp').onclick=async()=>{const t=tvList();if(!t)return;try{await navigator.clipboard.writeText(t)}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}
+ $('cp').textContent='Copied ✓';setTimeout(()=>$('cp').textContent='Copy TradingView list',1500)};
+$('dl').onclick=()=>{const t=tvList();if(!t)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));
+ a.download='crypto-watchlist-'+MODE+'-'+VIEW+'.txt';document.body.appendChild(a);a.click();a.remove()};
+$('rf').onclick=load;
+$('au').onclick=()=>{AUTO=!AUTO;$('au').textContent='Auto: '+(AUTO?'on':'off');$('au').classList.toggle('on',AUTO)};
+setInterval(()=>{if(AUTO&&!document.hidden)load()},60000);
+
+// ---- Binance Futures Behaviour Scanner (added panel) ----
+const DS_PERIODS = ['5m','15m','30m'];
+const dsFmt = (v,d=2) => v == null || !Number.isFinite(v) ? '—' : Number(v).toFixed(d);
+const dsPct = v => v == null || !Number.isFinite(v) ? '—' : `<span class="${v>=0?'pos':'neg'}">${v>=0?'+':''}${v.toFixed(2)}%</span>`;
+async function dsFetch(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch(url, {signal: controller.signal, cache: 'no-store'});
+    if (!response.ok) throw new Error('HTTP ' + response.status + ' from ' + new URL(url).pathname);
+    return await response.json();
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error('Binance request timed out after 12 seconds.');
+    if (err instanceof TypeError) throw new Error('Network/CORS error reaching Binance API. Check connection, VPN, firewall, or browser restrictions.');
+    throw err;
+  } finally { clearTimeout(timer); }
+}
+async function dsSeries(path, symbol, period) {
+  return dsFetch(`https://fapi.binance.com${path}?symbol=${encodeURIComponent(symbol)}&period=${period}&limit=2`);
+}
+function dsDelta(a,b) {
+  const x = Number(a), y = Number(b);
+  return Number.isFinite(x) && Number.isFinite(y) && x !== 0 ? (y/x-1)*100 : null;
+}
+function dsPairTrend(rows, field) {
+  if (!rows || rows.length < 2) return {value:null,change:null};
+  const prev = Number(rows[rows.length-2][field]), cur = Number(rows[rows.length-1][field]);
+  return {value:Number.isFinite(cur)?cur:null, change:dsDelta(prev,cur)};
+}
+async function dsOne(symbol) {
+  const out = {s:symbol, price:null, tf:{}};
+  // Keep the current price in function scope so the historical-window
+  // calculation can use it after the ticker request completes.
+  let currentPrice = null;
+  try {
+    const ticker = await dsFetch(`https://fapi.binance.com/fapi/v1/ticker/price?symbol=${encodeURIComponent(symbol)}`);
+    const parsedPrice = Number(ticker.price);
+    currentPrice = Number.isFinite(parsedPrice) ? parsedPrice : null;
+    out.price = currentPrice;
+  } catch (e) {
+    (out.errors ||= []).push(`Current price: ${e.message}`);
+  }
+  // Calculate rolling price changes against the latest ticker price and a
+  // historical 1-minute close at or immediately before each target window.
+  // Comparing the two older candle closes made the displayed price change stale.
+  const priceByTf = {};
+  try {
+    const kl = await dsFetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${encodeURIComponent(symbol)}&interval=1m&limit=35`);
+    const now = Date.now();
+    for (const tf of DS_PERIODS) {
+      const minutes = Number.parseInt(tf, 10);
+      const target = now - minutes * 60 * 1000;
+      let reference = null;
+      for (const candle of kl) {
+        const openTime = Number(candle[0]);
+        const closeTime = Number(candle[6]);
+        if (closeTime <= target && Number.isFinite(Number(candle[4]))) reference = candle;
+        if (openTime > target) break;
+      }
+      priceByTf[tf] = reference && Number.isFinite(currentPrice)
+        ? dsDelta(Number(reference[4]), currentPrice)
+        : null;
+    }
+  } catch (e) {
+    for (const tf of DS_PERIODS) priceByTf[tf] = null;
+    (out.errors ||= []).push(`Price change history: ${e.message}`);
+  }
+  for (const tf of DS_PERIODS) {
+    const endpoints = [
+      ['/futures/data/openInterestHist','oi','sumOpenInterestValue'],
+      ['/futures/data/globalLongShortAccountRatio','global','longShortRatio'],
+      ['/futures/data/topLongShortAccountRatio','topAcct','longShortRatio'],
+      ['/futures/data/topLongShortPositionRatio','topPos','longShortRatio'],
+      ['/futures/data/takerlongshortRatio','taker','buySellRatio']
+    ];
+    const got = await Promise.all(endpoints.map(async ([path,key,field]) => {
+      try { return {key,field,rows:await dsSeries(path,symbol,tf)}; }
+      catch (e) { return {key,field,rows:null,error:e.message}; }
+    }));
+    const vals = {};
+    for (const item of got) {
+      if (item.key === 'oi') {
+        const rows = item.rows;
+        if (rows && rows.length >= 2) {
+          const field = rows[rows.length-1].sumOpenInterestValue != null ? 'sumOpenInterestValue' : 'sumOpenInterest';
+          vals.oi = dsDelta(rows[rows.length-2][field], rows[rows.length-1][field]);
+        } else vals.oi = null;
+      } else {
+        const tr = dsPairTrend(item.rows, item.field);
+        vals[item.key] = tr.value;
+        vals[item.key+'Ch'] = tr.change;
+      }
+      if (item.error) (out.errors ||= []).push(`${tf} ${item.key}: ${item.error}`);
+    }
+    out.tf[tf] = {p:priceByTf[tf], ...vals};
+  }
+  return out;
+}
+function dsScore(x) {
+  let bull=0, bear=0, n=0;
+  const add=(condition, weight=1)=>{ if(condition===true){bull+=weight;n++} else if(condition===false){bear+=weight;n++} };
+  if (Number.isFinite(x.p) && Math.abs(x.p)>=0.02) add(x.p>0,2);
+  if (Number.isFinite(x.oi) && Math.abs(x.oi)>=0.02 && Number.isFinite(x.p) && Math.abs(x.p)>=0.02) {
+    if (x.oi>0) add(x.p>0,2); // price and OI rising leans long buildup; falling leans short buildup
+    else add(x.p<0,1); // price down + OI down is reduction, weaker directional evidence
+  }
+  if (Number.isFinite(x.taker) && Math.abs(x.taker-1)>=0.01) add(x.taker>1,2);
+  for (const k of ['global','topAcct','topPos']) {
+    if (Number.isFinite(x[k]) && Math.abs(x[k]-1)>=0.03) add(x[k]>1,0.5);
+    if (Number.isFinite(x[k+'Ch']) && Math.abs(x[k+'Ch'])>=0.5) add(x[k+'Ch']>0,0.5);
+  }
+  const total=bull+bear;
+  const bp=total ? Math.round(bull/total*100) : null;
+  const rp=total ? Math.round(bear/total*100) : null;
+  let label='Mixed / insufficient evidence', cls='neutral';
+  if (n<3) { label='Incomplete evidence'; }
+  else if (bull>=bear+2) { label='Bullish evidence'; cls='bulltxt'; }
+  else if (bear>=bull+2) { label='Bearish evidence'; cls='beartxt'; }
+  else if (bull>0 && bear>0) { label='Conflicting evidence'; }
+  return {bull:bp,bear:rp,label,cls,rawBull:bull,rawBear:bear,n};
+}
+function dsRead(x) {
+  const p=x.p, oi=x.oi, t=x.taker;
+  const missing=[];
+  if (!Number.isFinite(p)) missing.push('price change');
+  if (!Number.isFinite(oi)) missing.push('OI change');
+  if (!Number.isFinite(t)) missing.push('taker buy/sell');
+  if (missing.length) return ['Incomplete data','neutral','Missing: '+missing.join(', ')];
+  if (p<0 && oi>0 && t<1) return ['Possible short buildup','beartxt','Price down + OI up + taker-sell dominance'];
+  if (p>0 && oi>0 && t>1) return ['Possible long buildup','bulltxt','Price up + OI up + taker-buy dominance'];
+  if (p<0 && oi<0) return ['Position reduction possible','neutral','Price and OI down; liquidation not confirmed'];
+  if (p>0 && oi<0) return ['Short covering possible','neutral','Price up while OI falls; covering not confirmed'];
+  if (p<0 && t>1) return ['Conflicting flow','neutral','Taker buying while price falls; absorption is only a possibility'];
+  if (p>0 && t<1) return ['Conflicting flow','neutral','Taker selling while price rises; absorption is only a possibility'];
+  return ['Mixed / no clear setup','neutral','Inputs do not align strongly'];
+}
+function dsCell(v,type='num') {
+  if (v==null || !Number.isFinite(v)) return '—';
+  if (type==='pct') return dsPct(v);
+  return dsFmt(v,type==='ratio'?3:2);
+}
+function dsPriceCell(v) {
+  if (v==null || !Number.isFinite(v)) return '—';
+  if (v>=1000) return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if (v>=1) return v.toFixed(4);
+  if (v>=0.01) return v.toFixed(6);
+  if (v>=0.0001) return v.toFixed(8);
+  return v.toPrecision(6);
+}
+function dsRender(rows) {
+  const headers=['Coin','Current price','TF','Price %','OI %','Global L/S','Global Δ%','Top acct L/S','Acct Δ%','Top pos L/S','Pos Δ%','Taker B/S','Bull score','Bear score','Read'];
+  let h='<table><thead><tr>'+headers.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
+  let complete=0;
+  for (const r of rows) for (const tf of DS_PERIODS) {
+    const x=r.tf[tf], sc=dsScore(x), read=dsRead(x);
+    if ([x.p,x.oi,x.taker].every(Number.isFinite)) complete++;
+    h+=`<tr><td><b>${r.s.replace(/USDT$/,'')}</b></td><td>${dsPriceCell(r.price)}</td><td>${tf}</td><td>${dsCell(x.p,'pct')}</td><td>${dsCell(x.oi,'pct')}</td><td>${dsCell(x.global,'ratio')}</td><td>${dsCell(x.globalCh,'pct')}</td><td>${dsCell(x.topAcct,'ratio')}</td><td>${dsCell(x.topAcctCh,'pct')}</td><td>${dsCell(x.topPos,'ratio')}</td><td>${dsCell(x.topPosCh,'pct')}</td><td>${dsCell(x.taker,'ratio')}</td><td>${sc.bull==null?'—':sc.bull+'%'}</td><td>${sc.bear==null?'—':sc.bear+'%'}</td><td class="dsnote"><span class="${read[1]}">${read[0]}</span><br><span class="mut sm">${read[2]}</span><br><span class="${sc.cls}">${sc.label}</span></td></tr>`;
+  }
+  h+='</tbody></table>';
+  $('dsTbl').innerHTML=h;
+  const all=rows.flatMap(r=>DS_PERIODS.map(tf=>dsScore(r.tf[tf])));
+  const bulls=all.filter(s=>s.bull!=null && s.bull>=60).length;
+  const bears=all.filter(s=>s.bear!=null && s.bear>=60).length;
+  $('dsStats').innerHTML=`<div class="st"><b>${rows.length}</b><span>coins scanned</span></div><div class="st"><b>${complete}/${rows.length*3}</b><span>timeframes with core data</span></div><div class="st"><b>${bulls}</b><span>timeframes with bullish evidence ≥60%</span></div><div class="st"><b>${bears}</b><span>timeframes with bearish evidence ≥60%</span></div>`;
+}
+// Robust click binding + diagnostics for the derivatives scanner.
+const dsButton = $('dsRun');
+if (dsButton) {
+  dsButton.addEventListener('click', async function dsClickHandler(event) {
+    event.preventDefault();
+    const status = $('dsStatus');
+    status.className = 'status';
+    status.textContent = 'Button clicked — checking scanner setup…';
+    dsButton.disabled = true;
+    try {
+      if (typeof SET === 'undefined' || SET.ex !== 'binance') throw new Error('Choose Binance Futures in the Exchange data dropdown.');
+      let symbols = [];
+      try { if (typeof pick === 'function') symbols = pick().map(r => r.s).filter(Boolean); } catch (e) {}
+      if (!symbols.length && Array.isArray(ROWS)) symbols = ROWS.map(r => r.s).filter(Boolean);
+      symbols = [...new Set(symbols)].slice(0, Math.max(1, Number($('dsN').value) || 5));
+      if (!symbols.length) throw new Error('The main screener has not loaded coins yet. Wait until its status begins with “Updated”, then retry.');
+      status.textContent = `Scanner started: ${symbols.length} coin(s) queued.`;
+      const results = []; let failures = 0; const errorMessages = [];
+      for (let i = 0; i < symbols.length; i++) {
+        status.textContent = `Scanning ${i + 1}/${symbols.length}: ${symbols[i]} — requesting Binance data…`;
+        try {
+          const r = await dsOne(symbols[i]); results.push(r);
+          if (r.errors && r.errors.length) errorMessages.push(...r.errors.slice(0, 2));
+        } catch (err) {
+          failures++; errorMessages.push(`${symbols[i]}: ${err.message || err}`);
+          results.push({s:symbols[i], price:null, tf:Object.fromEntries(DS_PERIODS.map(tf => [tf, {p:null,oi:null,global:null,globalCh:null,topAcct:null,topAcctCh:null,topPos:null,topPosCh:null,taker:null}]))});
+        }
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }
+      dsRender(results);
+      if (failures === symbols.length) {
+        status.className = 'status err';
+        status.textContent = `Scan ran, but all ${failures} coin requests failed. ${errorMessages[0] || 'Check internet access and Binance Futures API availability.'}`;
+      } else {
+        status.textContent = `Scan finished: ${symbols.length} coins; ${failures} coin-level failures.` + (errorMessages.length ? ` First metric/request issue: ${errorMessages[0]}` : ' Data returned; review any blank cells.');
+      }
+    } catch (err) {
+      status.className = 'status err'; status.textContent = `Scanner could not start: ${err.message || err}`;
+    } finally { dsButton.disabled = false; }
+  });
+} else { console.error('Binance Behaviour Scanner: #dsRun button not found in page.'); }
+
+const dsSearchBtn = $('dsSearchBtn');
+if (dsSearchBtn) {
+  dsSearchBtn.addEventListener('click', async function () {
+    const status = $('dsStatus');
+    const raw = ($('dsCoinSearch').value || '').trim().toUpperCase().replace(/\s+/g, '');
+    if (!raw) {
+      status.className = 'status err';
+      status.textContent = 'Enter a coin symbol, for example BTC or BTCUSDT.';
+      $('dsCoinSearch').focus();
+      return;
+    }
+    const symbol = raw.endsWith('USDT') ? raw : raw + 'USDT';
+    dsSearchBtn.disabled = true;
+    status.className = 'status';
+    status.textContent = `Searching Binance USDⓈ-M Futures for ${symbol}…`;
+    try {
+      const result = await dsOne(symbol);
+      dsRender([result]);
+      if (result.errors && result.errors.length && result.errors.every(e => e.startsWith('Current price:'))) {
+        status.textContent = `${symbol}: scan completed, but current price could not be retrieved. ${result.errors[0]}`;
+      } else {
+        status.textContent = `Search complete: showing ${symbol} for 5m, 15m and 30m. Current price is the latest Binance Futures ticker price.`;
+        if (result.errors && result.errors.length) status.textContent += ` Some metrics may be blank. ${result.errors[0]}`;
+      }
+    } catch (err) {
+      status.className = 'status err';
+      status.textContent = `Could not search ${symbol}: ${err.message || err}. Check the symbol (USDT perpetual) and connection.`;
+    } finally { dsSearchBtn.disabled = false; }
+  });
+  $('dsCoinSearch').addEventListener('keydown', e => { if (e.key === 'Enter') dsSearchBtn.click(); });
+}
+
+const dsRefreshBtn = $('dsRefreshBtn');
+if (dsRefreshBtn) {
+  dsRefreshBtn.addEventListener('click', function () {
+    const searchValue = ($('dsCoinSearch').value || '').trim();
+    if (searchValue) {
+      if (dsSearchBtn && !dsSearchBtn.disabled) dsSearchBtn.click();
+    } else {
+      if (dsButton && !dsButton.disabled) dsButton.click();
+    }
+  });
+}
+
+// ---- end derivatives scanner ----
+
+
+// ---- Multi-timeframe strict sweep scanner ----
+const SWEEP_TFS = [
+  {key:'5m', label:'5m'},
+  {key:'30m', label:'30m'},
+  {key:'1h', label:'1h'},
+  {key:'4h', label:'4h'},
+  {key:'1d', label:'24h / 1D'}
+];
+const SWEEP_HIGH_VOLUME = 1.5;
+const SWEEP_AVG_CANDLES = 20;
+let sweepBusy = false;
+const swNum = v => Number.isFinite(v) ? Number(v).toLocaleString('en-US',{maximumFractionDigits:10}) : '—';
+const swTime = ms => new Date(ms + 1).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+function swStatus(message, error=false) {
+  const el=$('swStatus'); if(!el) return;
+  el.className='status'+(error?' err':''); el.textContent=message;
+}
+async function swFetchJson(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(()=>controller.abort(),12000);
+  try {
+    const res=await fetch(url,{signal:controller.signal,cache:'no-store'});
+    if(!res.ok) throw new Error('Binance HTTP '+res.status);
+    return await res.json();
+  } catch(e) {
+    if(e.name==='AbortError') throw new Error('Binance request timed out');
+    if(e instanceof TypeError) throw new Error('Network/CORS error reaching Binance');
+    throw e;
+  } finally { clearTimeout(timeout); }
+}
+async function swAnalyze(symbol, serverTime) {
+  const byTf={};
+  const results=await Promise.all(SWEEP_TFS.map(async tf=>{
+    const url=`https://fapi.binance.com/fapi/v1/klines?symbol=${encodeURIComponent(symbol)}&interval=${tf.key}&limit=${SWEEP_AVG_CANDLES+2}`;
+    try {
+      const raw=await swFetchJson(url);
+      // Binance kline fields: open time, OHLC, base volume, close time, quote volume.
+      const candles=raw.filter(k=>Number(k[6])<=serverTime).map(k=>({
+        openTime:Number(k[0]),open:Number(k[1]),high:Number(k[2]),low:Number(k[3]),close:Number(k[4]),
+        baseVolume:Number(k[5]),closeTime:Number(k[6]),quoteVolume:Number(k[7])
+      }));
+      if(candles.length<2) return {tf:tf.label,signal:null,error:'Not enough completed candles'};
+      const cur=candles[candles.length-1], prev=candles[candles.length-2];
+      let type=null;
+      if(cur.low<prev.low && cur.close>prev.high) type='BULLISH SWEEP';
+      else if(cur.high>prev.high && cur.close<prev.low) type='BEARISH SWEEP';
+      if(!type) return {tf:tf.label,signal:null};
+      let ratio=0, volumeClass='NORMAL';
+      if(candles.length>=SWEEP_AVG_CANDLES+1) {
+        const prior=candles.slice(-(SWEEP_AVG_CANDLES+1),-1);
+        const avg=prior.reduce((sum,c)=>sum+c.quoteVolume,0)/SWEEP_AVG_CANDLES;
+        if(Number.isFinite(cur.quoteVolume)&&cur.quoteVolume>=0&&Number.isFinite(avg)&&avg>0) ratio=cur.quoteVolume/avg;
+      }
+      if(ratio>=SWEEP_HIGH_VOLUME) volumeClass='HIGH-VOLUME CONFIRMED';
+      return {tf:tf.label,signal:{symbol,type,tf:tf.label,open:cur.open,high:cur.high,low:cur.low,close:cur.close,
+        prevHigh:prev.high,prevLow:prev.low,ratio,volumeClass,closeTime:cur.closeTime}};
+    } catch(e) { return {tf:tf.label,signal:null,error:e.message}; }
+  }));
+  for(const r of results) byTf[r.tf]=r;
+  return {symbol,byTf};
+}
+function swGetSymbols() {
+  const requested=Math.max(1,Number($('swN').value)||10);
+  // Use the main screener's high-volatility list, independently of its display view.
+  const volatile=ROWS.filter(r=>r.x!=null&&r.x>=Number(SET.xm)&&r.v*1e6>=Number(SET.mv)*1e6)
+    .sort((a,b)=>(b.x||0)-(a.x||0));
+  return volatile.slice(0,requested).map(r=>r.s);
+}
+function swRender(results) {
+  const rows=[];
+  for(const item of results) for(const tf of SWEEP_TFS) {
+    const entry=item.byTf[tf.label];
+    if(entry && entry.signal) rows.push(entry.signal);
+  }
+  rows.sort((a,b)=>b.closeTime-a.closeTime || a.symbol.localeCompare(b.symbol));
+  const bullish=rows.filter(r=>r.type==='BULLISH SWEEP').length;
+  const bearish=rows.filter(r=>r.type==='BEARISH SWEEP').length;
+  const high=rows.filter(r=>r.volumeClass==='HIGH-VOLUME CONFIRMED').length;
+  $('swStats').innerHTML=`<div class="st"><b>${results.length}</b><span>volatile coins scanned</span></div><div class="st"><b>${rows.length}</b><span>valid sweeps</span></div><div class="st"><b>${bullish}</b><span>bullish sweeps</span></div><div class="st"><b>${bearish}</b><span>bearish sweeps</span></div><div class="st"><b>${high}</b><span>high-volume sweeps</span></div>`;
+  if(!rows.length) {
+    $('swTbl').innerHTML='<div class="empty">No strict sweeps found in the scanned completed candles. This is a valid result; no setup is forced.</div>';
+    return;
+  }
+  let h='<table><thead><tr><th>Coin</th><th>Timeframe</th><th>Signal</th><th>Volume class</th><th>Relative USDT volume</th><th>Previous high</th><th>Previous low</th><th>Candle open</th><th>Candle high</th><th>Candle low</th><th>Candle close</th><th>Candle closed (IST)</th></tr></thead><tbody>';
+  for(const r of rows) {
+    const cls=r.type==='BULLISH SWEEP'?'sigbull':'sigbear';
+    const volcls=r.volumeClass==='HIGH-VOLUME CONFIRMED'?'volhigh':'';
+    h+=`<tr><td><a target="_blank" rel="noopener" href="https://www.tradingview.com/chart/?symbol=BINANCE:${r.symbol}.P">${r.symbol.replace(/USDT$/,'')}</a></td><td>${r.tf}</td><td class="${cls}">${r.type}</td><td class="${volcls}">${r.volumeClass==='HIGH-VOLUME CONFIRMED'?'⭐⭐⭐ HIGH-VOLUME CONFIRMED':'Normal'}</td><td>${r.ratio.toFixed(2)}×</td><td>${swNum(r.prevHigh)}</td><td>${swNum(r.prevLow)}</td><td>${swNum(r.open)}</td><td>${swNum(r.high)}</td><td>${swNum(r.low)}</td><td>${swNum(r.close)}</td><td>${swTime(r.closeTime)}</td></tr>`;
+  }
+  $('swTbl').innerHTML=h+'</tbody></table>';
+}
+async function swRun(searchSymbol=null) {
+  if(sweepBusy) return;
+  if(SET.ex!=='binance') { swStatus('Select Binance Futures in the main Exchange data dropdown to use this scanner.',true); return; }
+  let symbols=[];
+  if(searchSymbol) symbols=[searchSymbol];
+  else symbols=swGetSymbols();
+  if(!symbols.length) { swStatus('No coins meet the current volatility and volume filters. Wait for the main screener to load, or lower the minimum volume / volatility threshold.',true); return; }
+  sweepBusy=true; $('swRun').disabled=true; $('swSearchBtn').disabled=true;
+  try {
+    swStatus('Getting Binance server time…');
+    const timeData=await swFetchJson('https://fapi.binance.com/fapi/v1/time');
+    const serverTime=Number(timeData.serverTime);
+    const results=[]; let done=0;
+    // A small worker pool limits simultaneous requests and reduces rate-limit risk.
+    await pool(symbols,3,async symbol=>{
+      const result=await swAnalyze(symbol,serverTime);
+      results.push(result); done++;
+      swStatus(`Scanning completed candles: ${done}/${symbols.length} coins…`);
+    });
+    swRender(results);
+    const signalCount=results.reduce((n,r)=>n+SWEEP_TFS.filter(tf=>r.byTf[tf.label]?.signal).length,0);
+    swStatus(`Scan complete: ${symbols.length} coin(s), ${SWEEP_TFS.length} timeframes, ${signalCount} valid sweep(s). Candles were checked against Binance server time.`);
+  } catch(e) { swStatus('Sweep scan failed: '+e.message,true); }
+  finally { sweepBusy=false; $('swRun').disabled=false; $('swSearchBtn').disabled=false; }
+}
+$('swRun').addEventListener('click',()=>swRun());
+$('swSearchBtn').addEventListener('click',()=>{
+  const raw=($('swCoinSearch').value||'').trim().toUpperCase().replace(/\s+/g,'');
+  if(!raw) { swStatus('Enter a coin such as BTC or BTCUSDT.',true); $('swCoinSearch').focus(); return; }
+  swRun(raw.endsWith('USDT')?raw:raw+'USDT');
+});
+$('swCoinSearch').addEventListener('keydown',e=>{if(e.key==='Enter') $('swSearchBtn').click();});
+// ---- end multi-timeframe strict sweep scanner ----
+
+// Collapse/expand the three main panels without interrupting their scanners.
+document.querySelectorAll('[data-toggle]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const target=document.getElementById(button.dataset.toggle);
+    if(!target) return;
+    const willHide=!target.hidden;
+    target.hidden=willHide;
+    button.textContent=willHide?'Show':'Hide';
+    button.setAttribute('aria-expanded',String(!willHide));
+  });
+});
+labels();
+load();
+</script></body></html>
